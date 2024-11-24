@@ -18,10 +18,12 @@ class RawQueryTest extends TestCase
         DB::delete('DELETE FROM categories');    
     }
 
-    public function Crud(): void {
-        DB::insert('INSERT INTO categories(id, name, created_at, description) VALUES (?,?,?,?)',[
-            'GADGET', 'Gadget', '2024-10-10 10:1010','Gadget Category'
-        ]);
+    /**
+     * test raw query Crud
+     */
+    public function testCrud(): void {
+        DB::insert('INSERT INTO categories(id, name, created_at, description) VALUES (?, ?, ?, ?)',
+        ['GADGET','Gadget','2024-10-10 10:10:10','Gadget Category']);
 
         $result = DB::select('SELECT id, name, created_at, description FROM categories WHERE id =?', ['GADGET']);
 
@@ -29,6 +31,27 @@ class RawQueryTest extends TestCase
         assertEquals('GADGET', $result[0]->id);
         assertEquals('Gadget', $result[0]->name);
         assertEquals('Gadget Category', $result[0]->description);
-        assertEquals('2024-10-10 10:1010', $result[0]->created_at);
+        assertEquals('2024-10-10 10:10:10', $result[0]->created_at);
+    }
+
+    /**
+     * test raw query Crud dengan named binding
+     */
+    public function testCrudNamedBinding(): void {
+        DB::insert('INSERT INTO categories(id, name, created_at, description) 
+        VALUES (:id, :name, :created_at, :description)',[
+            'id'=>'GADGET', 
+            'name'=>'Gadget', 
+            'created_at'=>'2024-10-10 10:10:10',
+            'description'=>'Gadget Category'
+        ]);
+
+        $result = DB::select('SELECT id, name, created_at, description FROM categories WHERE id =:id', ['id'=>'GADGET']);
+
+        assertCount(1, $result);
+        assertEquals('GADGET', $result[0]->id);
+        assertEquals('Gadget', $result[0]->name);
+        assertEquals('Gadget Category', $result[0]->description);
+        assertEquals('2024-10-10 10:10:10', $result[0]->created_at);
     }
 }
